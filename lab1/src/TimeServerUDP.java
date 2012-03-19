@@ -1,9 +1,12 @@
 import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-public class TimeServer2 {
+public class TimeServerUDP {
 
 	static DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.LONG,
 			Locale.GERMAN);
@@ -16,20 +19,23 @@ public class TimeServer2 {
 	private static final int BUFFER_SIZE = 512;
 
 	public static void main(String[] args) throws IOException {
+		int port = 30000;
+		if (args.length > 0) {
+			port = Integer.parseInt(args[0]);
+		}
+		DatagramSocket socket = new DatagramSocket(port);
 		byte[] buf = new byte[BUFFER_SIZE];
 		while (true) {
-			int i = 0;
-			byte b = (byte) System.in.read();
-			while (b != -1 && b != '\n') {
-				buf[i++] = b;
-				b = (byte) System.in.read();
-				if (b == '\r') {
-					b = (byte) System.in.read();
-				}
-			}
-			String command = new String(buf, 0, i);
+			DatagramPacket packet = new DatagramPacket(buf, buf.length);
+			socket.receive(packet);
+			byte[] data = packet.getData();
+			int length = packet.getLength();
+			InetAddress address = packet.getAddress();
+			port = packet.getPort();
+
 			Date date = new Date();
 			String result = null;
+			String command = new String(buf, 0, length);
 			switch (command) {
 			case DATE:
 				result = dateFormat.format(date);
@@ -41,7 +47,9 @@ public class TimeServer2 {
 				result = "Invalid command";
 				break;
 			}
-			System.out.println(result);
+			packet = new DatagramPacket(result.getBytes(), result.length(),
+					address, port);
+			socket.send(packet);
 		}
 	}
 }

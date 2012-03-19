@@ -3,7 +3,7 @@ import java.util.Date;
 import java.util.Locale;
 
 public class TimeServer1 {
-	
+
 	static DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.LONG,
 			Locale.GERMAN);
 	static DateFormat timeFormat = DateFormat.getTimeInstance(DateFormat.SHORT,
@@ -18,16 +18,18 @@ public class TimeServer1 {
 		if (args.length > 0) {
 			command = args[0];
 		}
+		String result = null;
 		switch (command) {
 		case DATE:
-			System.out.println(dateFormat.format(date));
+			result = dateFormat.format(date);
 			break;
 		case TIME:
-			System.out.println(timeFormat.format(date));
+			result = timeFormat.format(date);
 			break;
 		default:
-			System.out.println("Invalid command");
+			result = "Invalid command";
 			break;
 		}
+		System.out.println(result);
 	}
 }
