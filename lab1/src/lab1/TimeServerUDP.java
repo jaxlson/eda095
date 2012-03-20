@@ -18,7 +18,7 @@ public class TimeServerUDP {
 	public static final int DATE = 0;
 	public static final int TIME = 1;
 
-	private static final int BUFFER_SIZE = 512;
+	private static final int BUFFER_SIZE = 65536;
 
 	public static void main(String[] args) throws IOException {
 		int port = 30000;
@@ -38,6 +38,7 @@ public class TimeServerUDP {
 			Date date = new Date();
 			String result = null;
 			String s = new String(buf, 0, length);
+			System.out.println(s);
 			int command = Integer.parseInt(s);
 			switch (command) {
 			case DATE:
@@ -50,7 +51,7 @@ public class TimeServerUDP {
 				result = "Invalid command";
 				break;
 			}
-			packet = new DatagramPacket(result.getBytes(), result.length(),
+			packet = new DatagramPacket(result.getBytes(), result.getBytes().length,
 					address, port);
 			socket.send(packet);
 		}

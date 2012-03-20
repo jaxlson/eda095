@@ -24,21 +24,25 @@ public class SendUDP2 {
 		InetAddress ia = InetAddress.getByName("experiment.mcast.net");
 		String data = "PC LOAD LETTER";
 		DatagramPacket packet = new DatagramPacket(data.getBytes(),
-				data.getBytes().length, ia, 4099);
+				data.getBytes().length, ia, 5013);
 		ms.send(packet);
-
-		DatagramSocket socket = new DatagramSocket(4099);
 		byte[] buf = new byte[BUFFER_SIZE];
 		packet = new DatagramPacket(buf, buf.length);
-		socket.receive(packet);
+		ms.receive(packet);
+		ms.close();
+
 		String s = new String(packet.getData(), 0, packet.getLength());
 		System.out.println("Received: " + s);
-		String response = new String(packet.getData());
-
-		InetAddress address = InetAddress.getByName(response);
+		InetAddress address = packet.getAddress();
 		packet = new DatagramPacket(message.getBytes(),
 				message.getBytes().length, address, port);
+		DatagramSocket socket = new DatagramSocket();
 		socket.send(packet);
+		
+		packet = new DatagramPacket(buf, buf.length);
+		socket.receive(packet);
+		s = new String(packet.getData(), 0, packet.getLength());
+		System.out.println("Received: " + s);
 	}
 
 }
