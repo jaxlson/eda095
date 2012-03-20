@@ -1,3 +1,5 @@
+package lab1;
+
 import java.io.IOException;
 import java.text.DateFormat;
 import java.util.Date;
