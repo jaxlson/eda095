@@ -17,7 +17,7 @@ public class MCAddressServer {
 				String s = new String(dp.getData(), 0, dp.getLength());
 				System.out.println("Received: " + s);
 				
-				InetAddress responseAddress = InetAddress.getByName(s);
+				InetAddress responseAddress = dp.getAddress();
 				InetAddress local = InetAddress.getLocalHost();
 				String data = local.getHostAddress();
 				DatagramSocket socket = new DatagramSocket();

@@ -22,8 +22,7 @@ public class SendUDP2 {
 		MulticastSocket ms = new MulticastSocket();
 		ms.setTimeToLive(1);
 		InetAddress ia = InetAddress.getByName("experiment.mcast.net");
-		InetAddress local = InetAddress.getLocalHost();
-		String data = local.getHostAddress();
+		String data = "PC LOAD LETTER";
 		DatagramPacket packet = new DatagramPacket(data.getBytes(),
 				data.getBytes().length, ia, 4099);
 		ms.send(packet);
