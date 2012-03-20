@@ -12,8 +12,8 @@ public class TimeServer2 {
 	static DateFormat timeFormat = DateFormat.getTimeInstance(DateFormat.SHORT,
 			Locale.GERMAN);
 
-	public static final String DATE = "date";
-	public static final String TIME = "time";
+	public static final int DATE = 0;
+	public static final int TIME = 1;
 
 	private static final int BUFFER_SIZE = 512;
 
@@ -29,7 +29,8 @@ public class TimeServer2 {
 					b = (byte) System.in.read();
 				}
 			}
-			String command = new String(buf, 0, i);
+			String s = new String(buf, 0, i);
+			int command = Integer.parseInt(s);
 			Date date = new Date();
 			String result = null;
 			switch (command) {

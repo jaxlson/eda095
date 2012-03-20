@@ -15,8 +15,8 @@ public class TimeServerUDP {
 	static DateFormat timeFormat = DateFormat.getTimeInstance(DateFormat.SHORT,
 			Locale.GERMAN);
 
-	public static final String DATE = "date";
-	public static final String TIME = "time";
+	public static final int DATE = 0;
+	public static final int TIME = 1;
 
 	private static final int BUFFER_SIZE = 512;
 
@@ -37,7 +37,8 @@ public class TimeServerUDP {
 
 			Date date = new Date();
 			String result = null;
-			String command = new String(buf, 0, length);
+			String s = new String(buf, 0, length);
+			int command = Integer.parseInt(s);
 			switch (command) {
 			case DATE:
 				result = dateFormat.format(date);

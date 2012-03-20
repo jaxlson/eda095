@@ -11,14 +11,14 @@ public class TimeServer1 {
 	static DateFormat timeFormat = DateFormat.getTimeInstance(DateFormat.SHORT,
 			Locale.GERMAN);
 
-	public static final String DATE = "date";
-	public static final String TIME = "time";
+	public static final int DATE = 0;
+	public static final int TIME = 1;
 
 	public static void main(String[] args) {
 		Date date = new Date();
-		String command = null;
+		int command = -1;
 		if (args.length > 0) {
-			command = args[0];
+			command = Integer.parseInt(args[0]);
 		}
 		String result = null;
 		switch (command) {
