@@ -16,14 +16,14 @@ public class ChatServer {
 		try {
 			Mailbox mailbox = new Mailbox();
 			List<Participant> participants = new ArrayList<Participant>();
+			Thread writeThread = new ServerWriteThread(mailbox, participants);
+			writeThread.start();
 			ServerSocket ss = new ServerSocket(port);
 			while (true) {
 				Socket socket = ss.accept();
 				Participant p = new Participant(socket);
 				participants.add(p);
-				Thread writeThread = new WriteThread(mailbox, p, participants);
-				Thread readThread = new ReadThread(mailbox, p, participants);
-				writeThread.start();
+				Thread readThread = new ServerReadThread(mailbox, p);
 				readThread.start();
 			}
 		} catch (IOException e) {
