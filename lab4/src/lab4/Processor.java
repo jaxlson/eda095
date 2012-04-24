@@ -6,40 +6,36 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayDeque;
-import java.util.HashSet;
-import java.util.Queue;
+import java.util.List;
 import java.util.Set;
 
 import javax.swing.text.html.HTMLEditorKit;
 
-public class CrawlerThread extends Thread {
+public class Processor extends Thread {
 
-	private static final int MAX_URLS = 100;
+	private static final int MAX_URLS = 50;
 
-	private Queue<URL> queue;
+	private List<URL> queue;
 	private Set<String> visited;
 	private Set<String> urls;
 	private Set<String> addresses;
 
-	public CrawlerThread(URL start) {
-		queue = new ArrayDeque<URL>();
-		visited = new HashSet<String>();
-		urls = new HashSet<String>();
-		addresses = new HashSet<String>();
-
-		queue.add(start);
+	public Processor(List<URL> q, Set<String> v, Set<String> u, Set<String> a) {
+		queue = q;
+		visited = v;
+		urls = u;
+		addresses = a;
 	}
 
 	@Override
 	public void run() {
 		ParserGetter kit = new ParserGetter();
 		HTMLEditorKit.Parser parser = kit.getParser();
-		LinkGetter callback = new LinkGetter(queue, visited, urls, addresses);
+		Spider callback = new Spider(queue, visited, urls, addresses);
 		int numVisited = 1;
 		while (!queue.isEmpty() && numVisited < MAX_URLS) {
 			try {
-				URL url = queue.poll();
+				URL url = queue.remove(0);
 				callback.setBaseUrl(url);
 				URLConnection con = url.openConnection();
 				String type = con.getContentType();
@@ -53,14 +49,5 @@ public class CrawlerThread extends Thread {
 			} catch (IOException e) {
 			}
 		}
-		System.out.println("List of URLs:");
-		for (String s : urls) {
-			System.out.println(s);
-		}
-		System.out.println("List of addresses:");
-		for (String s : addresses) {
-			System.out.println(s);
-		}
-		// print lists
 	}
 }

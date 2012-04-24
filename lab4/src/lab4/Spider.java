@@ -4,22 +4,22 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Queue;
+import java.util.List;
 import java.util.Set;
 
 import javax.swing.text.MutableAttributeSet;
 import javax.swing.text.html.HTML;
 import javax.swing.text.html.HTMLEditorKit;
 
-public class LinkGetter extends HTMLEditorKit.ParserCallback {
+public class Spider extends HTMLEditorKit.ParserCallback {
 
-	private Queue<URL> queue;
+	private List<URL> queue;
 	private Set<String> visited;
 	private Set<String> urls;
 	private Set<String> addresses;
 	private URL baseUrl;
 
-	public LinkGetter(Queue<URL> q, Set<String> v, Set<String> u, Set<String> a) {
+	public Spider(List<URL> q, Set<String> v, Set<String> u, Set<String> a) {
 		queue = q;
 		visited = v;
 		urls = u;
