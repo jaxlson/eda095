@@ -21,8 +21,8 @@ public class ClientReadThread extends Thread {
 					.getInputStream()));
 			while (!socket.isClosed()) {
 				String line = in.readLine();
-				if (line.equals("Goodbye!"))
-					break;
+				if (line == null || line.equals("Goodbye!"))
+					System.exit(0);
 				else
 					System.out.println(line);
 			}

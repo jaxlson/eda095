@@ -24,7 +24,7 @@ public class ServerReadThread extends Thread {
 					.getInputStream()));
 			while (socket.isConnected()) {
 				String line = in.readLine();
-				if (line.length() < 3) {
+				if (line == null || line.length() < 3) {
 					// Error. Ignore.
 					continue;
 				}
