@@ -15,12 +15,12 @@ public class Processor extends Thread {
 
 	private static final int MAX_URLS = 50;
 
-	private List<URL> queue;
+	private URLQueue queue;
 	private Set<String> visited;
 	private Set<String> urls;
 	private Set<String> addresses;
 
-	public Processor(List<URL> q, Set<String> v, Set<String> u, Set<String> a) {
+	public Processor(URLQueue q, Set<String> v, Set<String> u, Set<String> a) {
 		queue = q;
 		visited = v;
 		urls = u;
@@ -35,7 +35,7 @@ public class Processor extends Thread {
 		int numVisited = 1;
 		while (!queue.isEmpty() && numVisited < MAX_URLS) {
 			try {
-				URL url = queue.remove(0);
+				URL url = queue.pop();
 				callback.setBaseUrl(url);
 				URLConnection con = url.openConnection();
 				String type = con.getContentType();

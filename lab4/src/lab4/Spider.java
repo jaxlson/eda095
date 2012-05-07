@@ -13,13 +13,13 @@ import javax.swing.text.html.HTMLEditorKit;
 
 public class Spider extends HTMLEditorKit.ParserCallback {
 
-	private List<URL> queue;
+	private URLQueue queue;
 	private Set<String> visited;
 	private Set<String> urls;
 	private Set<String> addresses;
 	private URL baseUrl;
 
-	public Spider(List<URL> q, Set<String> v, Set<String> u, Set<String> a) {
+	public Spider(URLQueue q, Set<String> v, Set<String> u, Set<String> a) {
 		queue = q;
 		visited = v;
 		urls = u;
@@ -70,7 +70,7 @@ public class Spider extends HTMLEditorKit.ParserCallback {
 					addresses.add(path);
 				} else {
 					if (!visited.contains(path)) {
-						queue.add(url);
+						queue.push(url);
 						visited.add(path);
 					}
 					urls.add(path);

@@ -13,14 +13,14 @@ public class Main {
 	private static final int NUMBER_OF_THREADS = 10;
 
 	public Main() {
-		List<URL> queue = Collections.synchronizedList(new ArrayList<URL>());
+		URLQueue queue = new URLQueue();
 		Set<String> visited = Collections.synchronizedSet(new HashSet<String>());
 		Set<String> urls = Collections.synchronizedSet(new HashSet<String>());
 		Set<String> addresses = Collections.synchronizedSet(new HashSet<String>());
 		List<Thread> threads = new ArrayList<Thread>();
 		try {
 			URL start = new URL("http://cs.lth.se/eda095/");
-			queue.add(start);
+			queue.push(start);
 			for (int i = 0; i < NUMBER_OF_THREADS; i++) {
 				Thread t = new Processor(queue, visited, urls, addresses);
 				threads.add(t);
