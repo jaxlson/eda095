@@ -10,22 +10,20 @@ import javax.swing.text.html.HTMLEditorKit;
 
 
 public class CrawlThread extends Thread {
-	List<URL> queue;
-	List<URL> visited;
+	private Monitor monitor;
 	
-	public CrawlThread(List<URL> q, List<URL> v) {
-		queue = q;
-		visited = v;
+	public CrawlThread(Monitor m) {
+		monitor = m;
 	}
 	
 	@Override
 	public void run() {
 		ParserGetter kit = new ParserGetter();
 		HTMLEditorKit.Parser parser = kit.getParser();
-		ServerSpider callback = new ServerSpider(queue, visited);
-		while (!queue.isEmpty()) {
+		CrawlerCallback callback = new CrawlerCallback(monitor);
+		while (true) {
 			try {
-				URL url = queue.remove(0);
+				URL url = monitor.popFromQueue();
 				callback.setBaseUrl(url);
 				URLConnection con = url.openConnection();
 				String type = con.getContentType();

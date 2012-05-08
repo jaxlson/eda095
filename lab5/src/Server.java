@@ -1,58 +1,55 @@
 
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URL;
-import java.net.URLConnection;
-import java.rmi.Naming;
+import java.rmi.RMISecurityManager;
 import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
-import java.util.List;
-
-import javax.swing.text.html.HTMLEditorKit;
 
 public class Server extends UnicastRemoteObject implements WebCrawler {
 
-	private List<URL> queue;
-	private List<URL> visited;
+	private static final long serialVersionUID = 1L;
+	private Monitor monitor;
+	private static final int NUMBER_OF_THREADS = 10;
 
 	public Server() throws RemoteException {
-		queue = new ArrayList<URL>();
-		visited = new ArrayList<URL>();
+		monitor = new Monitor();
+	}
+
+	@Override
+	public void startCrawling(URL startURL) {
+		monitor.addToQueue(startURL);
+		for (int i = 0; i < NUMBER_OF_THREADS; i++) {
+			Thread t = new CrawlThread(monitor);
+			t.start();
+		}
+	}
+
+	@Override
+	public ArrayList<URL>[] fetch() throws RemoteException {
+		return monitor.fetch();
+	}
+
+	@Override
+	public void set(ArrayList<URL>[] input) throws RemoteException {
+		monitor.set(input);
 	}
 	
     public static void main(String[] args) {
+    	if (System.getSecurityManager() == null) {
+            System.setSecurityManager(new RMISecurityManager());
+            System.out.println("Security Manager installed");
+        }
         try {
             WebCrawler crawler = new Server();
-            Naming.rebind("Server", crawler);
+            Registry registry = LocateRegistry.getRegistry(1212);
+            registry.rebind("WebCrawler", crawler);
             System.out.println("RMI server running");
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
-	@Override
-	public void startCrawling() {
-		CrawlThread c = new CrawlThread(queue, visited);
-		c.start();
-	}
-
-	@Override
-	public List<URL>[] fetch() throws RemoteException {
-		List<URL>[] result = (ArrayList<URL>[]) new ArrayList[2];
-		result[0] = queue;
-		result[1] = visited;
-		return result;
-	}
-
-	@Override
-	public List<URL>[] fetchAndSet(List<URL>[] input) throws RemoteException {
-		List<URL>[] result = fetch();
-		queue = input[0];
-		visited = input[1];
-		return result;
-	}
+    
 }

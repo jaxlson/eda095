@@ -1,85 +1,76 @@
-
-
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
+import java.rmi.Naming;
+import java.rmi.RMISecurityManager;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
 public class Client {
-	Set<URL> visited;
-	ArrayList<WebCrawler> servers;
+
+	ArrayList<WebCrawler> crawlers;
 	ArrayList<String> hosts;
 
 	public Client() {
-		Set<URL> visited = Collections.synchronizedSet(new HashSet<URL>());
-		servers = new ArrayList<WebCrawler>();
-		ArrayList<String> hosts = new ArrayList<String>();
-		hosts.add("varg-2");
+		crawlers = new ArrayList<WebCrawler>();
+		hosts = new ArrayList<String>();
+
+		hosts.add("localhost");
+		hosts.add("hacke-10");
+	}
+
+	public void init() throws Exception {
 		ArrayList<URL> startAddresses = new ArrayList<URL>();
-		ArrayList<URL> startVisited = new ArrayList<URL>();
-		try {
-			startAddresses.add(new URL("http://www.lth.se/"));
-			startAddresses.add(new URL("http://www.aftonbladet.se/"));
-		} catch (MalformedURLException e1) {
-			e1.printStackTrace();
-		}
-		try {
-			for (int i = 0 ; i < hosts.size() ; i++) {
-				System.out.println("add host");
-				Registry registry = LocateRegistry.getRegistry(hosts.get(i));
-				WebCrawler crawler = (WebCrawler) registry.lookup("Server");
-				servers.add(crawler);
-				List<URL>[] input = (ArrayList<URL>[]) new ArrayList[2];
-				List<URL> start = new ArrayList<URL>();
-				start.add(startAddresses.get(i));
-				input[0] = start;
-				input[1] = startVisited;
-				System.out.println("innan fetchandset");
-				crawler.fetchAndSet(input);
-				System.out.println("innan startcrawl");
-				crawler.startCrawling();
-				System.out.println("efter startcrawl");
-			}
-			System.out.println("innan loop");
-			while(true) {
-				try {
-					Thread.sleep(3000);
-					for (WebCrawler crawler : servers) {
-						System.out.println("fetch?");
-						List<URL>[] result = crawler.fetch();
-						System.out.println("fetched!");
-						for (URL url : result[0]) {
-							System.out.println(url.toString());
-						}
-					}
 
-				} catch (InterruptedException e) {
-					e.printStackTrace();
+		startAddresses.add(new URL("http://www.lth.se/"));
+		startAddresses.add(new URL("http://www.aftonbladet.se/"));
+
+		for (int i = 0; i < hosts.size(); i++) {
+			WebCrawler crawler = (WebCrawler) Naming.lookup("rmi://"
+					+ hosts.get(i) + ":1212/WebCrawler");
+			crawlers.add(crawler);
+			crawler.startCrawling(startAddresses.get(i));
+		}
+
+		while (true) {
+			Thread.sleep(3000);
+			Set<URL> mergedQueue = new HashSet<URL>();
+			Set<URL> mergedVisited = new HashSet<URL>();
+			for (WebCrawler crawler : crawlers) {
+				List<URL>[] result = crawler.fetch();
+				mergedQueue.addAll(result[0]);
+				mergedVisited.addAll(result[1]);
+			}
+			
+			System.out.println("Total queue: " + mergedQueue.size());
+			System.out.println("Total visited: " + mergedVisited.size());
+			
+			int splitQueueSize = 1 + mergedQueue.size() / hosts.size();
+			ArrayList<URL> visited = new ArrayList<URL>(mergedVisited);
+			ArrayList<URL>[] result = (ArrayList<URL>[]) new ArrayList[2];
+			result[1] = visited;
+			Iterator<URL> itr = mergedQueue.iterator();
+			for (int i = 0; i < hosts.size(); i++) {
+				ArrayList<URL> queue = new ArrayList<URL>();
+				int j = 0;
+				while (j < splitQueueSize && itr.hasNext()) {
+					queue.add(itr.next());
+					j++;
 				}
+				result[0] = queue;
+				crawlers.get(i).set(result);
 			}
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		} catch (NotBoundException e) {
-			e.printStackTrace();
 		}
 	}
 
-	public static void main(String[] args) {
-		new Client();
-	}
-	
-	public void printResult() {
-		System.out.println("List of URLs:");
-		for (URL s : visited) {
-			System.out.println(s.toString());
+	public static void main(String[] args) throws Exception {
+		if (System.getSecurityManager() == null) {
+			System.setSecurityManager(new RMISecurityManager());
+			System.out.println("Security Manager installed");
 		}
+		Client client = new Client();
+		client.init();
 	}
 
 }
